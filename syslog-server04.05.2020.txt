@@ -1,0 +1,171 @@
+syslog server on centos 7
+========================
+
+. syslog server 172.31.13.163
+. client server1 172.31.8.83
+. client server2 172.31.14.86
+
+
+Syslog Server Setup
+===================
+
+# yum -y install rsyslog
+
+backup original configuration file
+
+# cp  /etc/rsyslog.conf /etc/rsyslog.conf.orig
+
+# vim /etc/rsyslog.conf
+
+
+
+TCP or UDP
+===========
+
+Rsyslog supports both UDP and TCP protocol for receiving logs. TCP protocol provides reliable transmission of logs.
+UDP
+
+Uncomment the following to enable the syslog server to listen on the UDP protocol.
+
+FROM:
+
+# Provides UDP syslog reception
+#$ModLoad imudp
+#$UDPServerRun 514
+
+
+TO:
+
+# Provides UDP syslog reception
+$ModLoad imudp
+$UDPServerRun 514
+---------------------------------------------
+
+
+TCP
+
+Uncomment the following to enable the syslog server to listen on the TCP protocol.
+
+
+FROM:
+# Provides TCP syslog reception
+#$ModLoad imtcp
+#$InputTCPServerRun 514
+
+
+TO:
+
+# Provides TCP syslog reception
+$ModLoad imtcp
+$InputTCPServerRun 514
+
+
+
+
+Restart the syslog service
+
+systemctl restart rsyslog
+
+
+
+Verify the syslog server listening on the port 514.
+
+netstat -antup | grep 514
+
+Output:
+
+udp        0      0 0.0.0.0:514             0.0.0.0:*                           1467/rsyslogd       
+udp6       0      0 :::514                  :::*                                1467/rsyslogd 
+
+
+===============================================================
+
+
+Syslog Client Setup1
+===================
+
+Install the Rsyslog package, if you do not have it installed.
+
+yum -y install rsyslog
+
+Edit the /etc/rsyslog.conf file.
+
+vi /etc/rsyslog.conf
+
+At the end of the file place the following line to point the client message log to the server.
+UDP
+
+*.info;mail.none;authpriv.none;cron.none @172.31.8.83:514
+
+TCP
+
+*.info;mail.none;authpriv.none;cron.none @@172.31.8.83:514
+
+You can use either the hostname or the ip address.
+
+Restart the syslog service
+
+systemctl restart rsyslog
+
+------------------------------------------------------------
+
+Syslog Client Setup2
+===================
+
+Install the Rsyslog package, if you do not have it installed.
+
+yum -y install rsyslog
+
+Edit the /etc/rsyslog.conf file.
+
+vi /etc/rsyslog.conf
+
+At the end of the file place the following line to point the client message log to the server.
+UDP
+
+*.info;mail.none;authpriv.none;cron.none @172.31.14.86:514
+
+TCP
+
+*.info;mail.none;authpriv.none;cron.none @@172.31.14.86:514
+
+You can use either the hostname or the ip address.
+
+Restart the syslog service
+
+systemctl restart rsyslog  
+----------------------------------------------------------
+
+Allow 514 port number in security group
+
+
+Validate
+
+Goto the syslog server and view the messages log file.
+
+tail -f /var/log/messages
+
+May  4 07:02:50 ip-172-31-8-83 ec2net: [rewrite_aliases] Rewriting aliases of eth0
+May  4 07:02:50 ip-172-31-8-83 ec2net: [rewrite_aliases] Rewriting aliases of eth0
+May  4 07:03:10 ip-172-31-13-163 dhclient[3009]: XMT: Solicit on eth0, interval 108520ms.
+May  4 07:04:49 ip-172-31-8-83 dhclient[3008]: XMT: Solicit on eth0, interval 131690ms.
+May  4 07:04:49 ip-172-31-8-83 dhclient[3008]: XMT: Solicit on eth0, interval 131690ms.
+May  4 07:04:58 ip-172-31-13-163 dhclient[3009]: XMT: Solicit on eth0, interval 113200ms.
+May  4 07:06:27 ip-172-31-14-86 systemd[1]: Stopping System Logging Service...
+May  4 07:06:27 ip-172-31-14-86 rsyslogd:  [origin software="rsyslogd" swVersion="8.32.0" x-pid="833" x-info="http://www.rsyslog.com"] exiting on signal 15.
+May  4 07:06:27 ip-172-31-14-86 systemd[1]: Stopped System Logging Service.
+May  4 07:06:27 ip-172-31-14-86 systemd[1]: Starting System Logging Service...
+May  4 07:06:27 ip-172-31-14-86 systemd[1]: Started System Logging Service.
+May  4 07:06:27 ip-172-31-14-86 rsyslogd: imuxsock: Acquired UNIX socket '/run/systemd/journal/syslog' (fd 3) from systemd.  [v8.32.0]
+May  4 07:06:27 ip-172-31-14-86 rsyslogd: rsyslogd's groupid changed to 106
+May  4 07:06:27 ip-172-31-14-86 rsyslogd: rsyslogd's userid changed to 102
+May  4 07:06:27 ip-172-31-14-86 rsyslogd:  [origin software="rsyslogd" swVersion="8.32.0" x-pid="9111" x-info="http://www.rsyslog.com"] start
+May  4 07:06:27 ip-172-31-14-86 systemd[1]: Stopping System Logging Service...
+May  4 07:06:27 ip-172-31-14-86 rsyslogd:  [origin software="rsyslogd" swVersion="8.32.0" x-pid="833" x-info="http://www.rsyslog.com"] exiting on signal 15.
+   
+
+refrence site: https://www.itzgeek.com/how-tos/linux/centos-how-tos/setup-syslog-server-on-centos-7-rhel-7.html
+
+
+
+      
