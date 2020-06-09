@@ -169,4 +169,5 @@ refrence site: https://www.itzgeek.com/how-tos/linux/centos-how-tos/setup-syslog
 
 
       
-date 09
+date 09.06
+
